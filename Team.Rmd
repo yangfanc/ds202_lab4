@@ -1,0 +1,143 @@
+---
+title: "Team"
+author: "YangfanCai/yangfanc"
+date: "3/19/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(readxl)
+library(reshape2)
+library(dplyr)
+library(tidyr)
+library(tidyverse)
+
+```
+
+
+
+
+```{r}
+def <- read_excel('~/Downloads/cyclonesFootball2019.xlsx', sheet='Defensive')
+off <- read_excel('~/Downloads/cyclonesFootball2019.xlsx', sheet='Offensive')
+bio <- read_excel('~/Downloads/cyclonesFootball2019.xlsx', sheet='Biography')
+if (!require("tidyverse")) {
+install.packages("tidyverse")
+}
+if (!require("dplyr")) {
+install.packages("dplyr")
+}
+if (!require("ggplot2")) {
+install.packages("ggplot2")
+}
+
+bio$Name <- as.factor(bio$Name)
+def$Name <- as.factor(def$Name)
+off$Name <- as.factor(off$Name)
+def$Opponent_Opponent <- as.factor(def$Opponent_Opponent)
+off$Opponent_Opponent <- as.factor(off$Opponent_Opponent)
+
+def <- mutate_at(def, 3:11, as.numeric)
+off <- mutate_at(off, 3:12, as.numeric)
+bio$Weight <- as.numeric(bio$Weight)
+defClean <- def
+offClean <- off
+str(defClean)
+
+bioClean <- Bio %>% separate(Height, c("Feet", "Inches"))
+bioClean$Feet = as.numeric(bioClean$Feet)
+bioClean$Inches = as.numeric(bioClean$Inches)
+bioClean$Height = (bioClean$Feet *12)+bioClean$Inches
+bioClean = select(bioClean,-matches("Feet"))
+bioClean = select(bioClean,-matches("Inches"))
+bioClean <- bioClean[,c(1,2,7,3,4,5,6)] 
+head(bioClean)
+
+bioClean <- bioClean %>%
+  separate(Hometown,into = c("City", "State"), sep= ',')
+head(bioClean)
+
+dat <- bioClean
+bioClean %>% 
+  count(State, sort = TRUE)
+
+defClean <- defClean %>% 
+  pivot_longer(cols = c("Tackles_Solo","Tackles_Sack","Tackles_ASST", "Tackles_TFL","Turnover_FF", "Turnover_FR","Turnover_INT", "Pass_QBH","Pass_PB" ),
+    names_to = "Statistic",
+    values_to = "Value") 
+defClean$Statistic <- as.factor(defClean$Statistic)
+str(defClean)
+
+ggplot(defClean, aes(x=Value)) +
+  geom_histogram() +
+  facet_wrap(defClean$Statistic) + 
+  labs(title = "Defensive Statistics: Occurances in a game per player", 
+       xlab= "Number of Occurances (Value)")
+
+dat01 <- defClean
+dat01 <- dat01 %>% 
+  filter(Opponent_Opponent == "West Virginia" | Opponent_Opponent == "Kansas State") %>%
+  filter(Statistic == "Tackles_Solo") %>%
+  pivot_wider(names_from = Opponent_Opponent, values_from = Value) %>%
+  mutate( WV = `West Virginia` ) %>%
+  mutate(KS = `Kansas State`)
+ggplot(dat01, aes(x=WV, y=KS)) + 
+  geom_point(position = "jitter") + 
+  labs(title= "Solo Tackles: West Virginia vs Kansas State")+ 
+  xlab("West Virginia") + 
+  ylab("Kansas State")
+
+
+dat01 <- defClean
+dat01 <- dat01 %>% 
+  filter(Opponent_Opponent == "West Virginia" | Opponent_Opponent == "Kansas State") %>%
+  filter(Statistic == "Tackles_Solo") %>%
+  pivot_wider(names_from = Opponent_Opponent, values_from = Value) %>%
+  mutate( WV = `West Virginia` ) %>%
+  mutate(KS = `Kansas State`)
+ggplot(dat01, aes(x=WV, y=KS)) + 
+  geom_point(position = "jitter") + 
+  labs(title= "Solo Tackles: West Virginia vs Kansas State")+ 
+  xlab("West Virginia") + 
+  ylab("Kansas State")
+
+
+
+
+dat <- bioClean
+bioClean %>% 
+  count(State, sort = TRUE)
+
+offJoined <- offClean %>%
+  left_join(bioClean, by=c("Name"))
+offCP = offJoined %>%
+  group_by(Name) %>%
+  select(State)
+head(offCP)
+
+ggplot(offJoined, aes(Weight, Receiving_YDS)) +
+  geom_point() +
+  labs(title = "Weight of player and receiving yards",
+       x = "Weight of a player",
+       y = "Receiving yards") +
+  geom_smooth()
+
+offWP <- offClean %>%
+  filter(Name != "Purdy, Brock") %>%
+  group_by(Opponent_Opponent) %>%
+  summarise_at(vars(-Name), funs(mean(.,na.rm = TRUE)))
+head(offWP,13)
+justpurdy <- offClean %>%
+  filter(Name == "Purdy, Brock")
+head(justpurdy,13)
+
+dat01 <- offJoined %>%
+  group_by(State) %>%
+  summarise_at(vars(c("Rushing_YDS","Receiving_YDS")), funs(mean(.,na.rm = TRUE)))
+dat01
+```
