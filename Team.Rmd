@@ -127,6 +127,10 @@ ggplot(offJoined, aes(Weight, Receiving_YDS)) +
        y = "Receiving yards") +
   geom_smooth()
 
+#summary
+#Proportional
+
+
 offWP <- offClean %>%
   filter(Name != "Purdy, Brock") %>%
   group_by(Opponent_Opponent) %>%
@@ -140,4 +144,8 @@ dat01 <- offJoined %>%
   group_by(State) %>%
   summarise_at(vars(c("Rushing_YDS","Receiving_YDS")), funs(mean(.,na.rm = TRUE)))
 dat01
+
+# summary:
+# ARIZ and ARK is best
+#they need to found more recruitment 
 ```
