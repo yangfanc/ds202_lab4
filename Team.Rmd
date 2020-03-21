@@ -127,8 +127,7 @@ ggplot(offJoined, aes(Weight, Receiving_YDS)) +
        y = "Receiving yards") +
   geom_smooth()
 
-#summary
-#Proportional
+
 
 
 offWP <- offClean %>%
@@ -145,7 +144,16 @@ dat01 <- offJoined %>%
   summarise_at(vars(c("Rushing_YDS","Receiving_YDS")), funs(mean(.,na.rm = TRUE)))
 dat01
 
-# summary:
-# ARIZ and ARK is best
-#they need to found more recruitment 
+#summery 1:
+# more students who is football player, their are from IA, the next is AZ and OH
+
+#summary 2:
+# there isn't a clear representation to whether or not a relationship exists between weight of a player and receiving yards.
+# FL and OK have 2 people, another states is 1.
+
+#summary 3:
+# show that OK and OK State best and bad.
+# Defensive performance is not as good as another game.
+# negative relationship between weight and solo tackles.
+# weight increase, solo decreased
 ```
